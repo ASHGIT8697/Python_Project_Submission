@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 def scrape_movies(genre, num_suggestions, save_path):
-    # Constructing IMDb URL
+    # Constructing IMDb URL based on genre given as input
     url = f"https://www.imdb.com/search/?title_type=feature&genres={genre}"
     print("Scraping Movies!!!")
     
@@ -19,7 +19,7 @@ def scrape_movies(genre, num_suggestions, save_path):
     # Parse the page content
     soup = BeautifulSoup(response.content, 'html.parser')
     
-    # Locate movie elements
+    # Locate and find all the movie elements from the IMDB webpage
     movie_elements = soup.find('div', class_='ipc-page-grid__item ipc-page-grid__item--span-2').find_all('li')
     movies = []
     
@@ -37,7 +37,7 @@ def scrape_movies(genre, num_suggestions, save_path):
             rating_tag = element.find('span', class_='ipc-rating-star--rating')
             rating= rating_tag.text.strip() if rating_tag else None
             
-            # Collect movie details
+            # Collecting movie details
             movies.append({
                 "Title": title,
                 "Year": year,
@@ -47,7 +47,7 @@ def scrape_movies(genre, num_suggestions, save_path):
         except Exception as e:
             print(f"Error extracting data for a movie element: {e}")
     
-    # Save data to a CSV file
+    # Saving Collected data to a CSV file
     df = pd.DataFrame(movies)
     df.to_csv(save_path, index=False)
     print("Data Saved!!")
@@ -59,14 +59,14 @@ def suggest_random_movies(df, num_suggestions):
 
     suggestions = df.sample(n=min(num_suggestions, len(df)))
     
-    # Display suggestions
+    # Displaying random suggestions
     print("\nHere are some suggestions for you:")
     for _, movie in suggestions.iterrows():
         print(f"{movie['Title']} ({movie['Year']}) - Rating: {movie['Rating']}")
 
-# Get Input
+# Getting Input from user
 genre = input("Enter the genre you're interested in: ").lower()
 num_suggestions = int(input("Enter the number of movie suggestions: "))
-save_path = input("Enter the destination path to save CSV file (e.g., /path/to/movies.csv): ")
+save_path = input("Enter the destination path to save all of the scraped data (e.g., /path/to/movies.csv): ")
 
 scrape_movies(genre, num_suggestions, save_path)
